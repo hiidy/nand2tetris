@@ -12,3 +12,60 @@
 // the screen should remain fully clear as long as no key is pressed.
 
 //// Replace this comment with your code.
+
+@color
+M=0
+
+(LOOP)
+    @SCREEN
+    D=A
+
+    @pixel //start
+    M=D
+
+    @KBD
+    D=M
+
+    @black
+    D;JGT
+
+    @white
+    D;JEQ
+
+    (black)
+        @color
+        M=-1
+        @fill
+        0;JMP
+
+    (white)
+        @color
+        M=0
+        @fill
+        0;JMP
+    
+    (fill)
+        @color
+        D=M
+        @pixel // M = start address
+        A=M
+        M=D
+
+        @pixel
+        M=M+1
+        D=M
+
+        @24576
+        D=A-D
+
+        @fill
+        D;JGT
+
+@LOOP
+0;JMP
+
+
+
+
+
+    

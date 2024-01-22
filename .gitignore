@@ -1,3 +1,4 @@
 .DS_Store
-.dat
+* .dat
 tools/bin/Hardware Simulator.dat
+tools/bin/CPU Emulator.dat
