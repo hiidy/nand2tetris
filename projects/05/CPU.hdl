@@ -32,5 +32,57 @@ CHIP CPU {
         pc[15];          // Address of next instruction
 
     PARTS:
-    //// Replace this comment with your code.
+    // A명령어인지 C명령어인지
+    Mux16(a=instruction, b=ALUout, sel=instruction[15], out=Aregin);
+
+    // Aload 조건
+    And(a=instruction[15], b=instruction[5], out=Cinsload);
+    Not(in=instruction[15], out=notins);
+    Or(a=Cinsload, b=notins, out=Aload);
+    // ARegister
+    ARegister(in=Aregin, load=Aload, out=Aregout, out[0..14]=addressM);
+
+    // ALU에 input을 A레지터로 받을지 inM으로 받을지 a따라 결정
+    Mux16(a=Aregout, b=inM, sel=instruction[12], out=AMout);
+
+    // DRegister
+    And(a=instruction[4], b=instruction[15], out=Dload);
+    DRegister(in=ALUout, load=Dload, out=Dregout); 
+
+    // ALU
+    ALU(x=Dregout, 
+    y=AMout, 
+    zx=instruction[11], 
+    nx=instruction[10], 
+    zy=instruction[9], 
+    ny=instruction[8], 
+    f=instruction[7], 
+    no=instruction[6], 
+    out=ALUout,
+    out=outM, 
+    zr=ALUzr, 
+    ng=ALUng);
+
+    // jump 분기 처리하기
+    Or(a=ALUzr, b=ALUng, out=zrng);
+    Not(in=zrng, out=pos);  
+    // JGT
+    And(a=pos, b=instruction[0], out=jgt);
+    // JEQ
+    And(a=ALUzr, b=instruction[1], out=jeq);  
+    // JGE
+    Or(a=jgt, b=jeq, out=jge);
+    // JLT
+    And(a=ALUng, b=instruction[2], out=jlt);
+
+    Or(a=jge, b=jlt, out=j);
+
+    // jump를 이용해서 pc구현
+    And(a=instruction[15], b=j, out=loadPC);
+    Not(in=loadPC, out=notJump);
+    PC(in=Aregout, load=loadPC, inc=notJump, reset=reset, out[0..14]=pc);    
+
+    // wirteM
+    And(a=instruction[3], b=instruction[15], out=writeM);
+
 }
