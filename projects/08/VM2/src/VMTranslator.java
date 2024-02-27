@@ -35,6 +35,15 @@ public class VMTranslator {
                     case C_IF -> {
                         codeWriter.writeIf(parser.arg1());
                     }
+                    case C_FUNCTION -> {
+                        codeWriter.writeFunction(parser.arg1(), parser.arg2());
+                    }
+                    case C_CALL -> {
+                        codeWriter.writeCall(parser.arg1(), parser.arg2());
+                    }
+                    case C_RETURN -> {
+                        codeWriter.writeReturn();
+                    }
                 }
             }
 

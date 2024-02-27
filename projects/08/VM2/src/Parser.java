@@ -83,7 +83,8 @@ public class Parser {
     }
 
     public int arg2() {
-        if (commandType() == CommandType.C_POP || commandType() == CommandType.C_PUSH) {
+        if (commandType() == CommandType.C_POP || commandType() == CommandType.C_PUSH
+            || commandType() == CommandType.C_FUNCTION || commandType() == CommandType.C_CALL) {
             return Integer.parseInt(currentLine.split(" ")[2].trim());
         }
         throw new IllegalArgumentException("Invalid Command Type");

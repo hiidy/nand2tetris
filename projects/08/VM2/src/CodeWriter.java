@@ -6,6 +6,7 @@ public class CodeWriter {
     private BufferedWriter writer;
     private static String fileName;
     private String functionName;
+    private int returnCount = 0;
 
 
     public enum CommandType {
@@ -373,5 +374,128 @@ public class CodeWriter {
             """.formatted(label);
         writer.write(template);
 
+    }
+
+    public void writeFunction(String functionName, int nVars) throws IOException {
+        this.functionName = functionName;
+        String push0 = """
+            @SP
+            A=M
+            M=0
+            @SP
+            M=M+1
+            """;
+
+        if (nVars == 0) {
+            String template = "(%s)\n".formatted(functionName);
+            writer.write(template);
+        } else {
+            String template = "(%s)\n".formatted(functionName) + push0.repeat(nVars);
+            writer.write(template);
+        }
+    }
+
+    public void writeCall(String functionName, int nVars) throws IOException {
+        String returnAddress = functionName + "$ret.%d".formatted(returnCount);
+        String template = """
+            @%s
+            D=A
+            @SP
+            A=M
+            M=D
+            @SP
+            M=M+1
+            @LCL
+            D=M
+            @SP
+            A=M
+            M=D
+            @SP
+            M=M+1
+            @ARG
+            D=M
+            @SP
+            A=M
+            M=D
+            @SP
+            M=M+1
+            @THIS
+            D=M
+            @SP
+            A=M
+            M=D
+            @SP
+            M=M+1
+            @THAT
+            D=M
+            @SP
+            A=M
+            M=D
+            @SP
+            M=M+1
+            @SP
+            D=M
+            @%d
+            D=D-A
+            @ARG
+            M=D
+            @SP
+            D=M
+            @LCL
+            M=D
+            @%s
+            0;JMP
+            (%s)
+            """.formatted(returnAddress, nVars, returnAddress, returnAddress);
+        returnCount++;
+        writer.write(template);
+    }
+
+    public void writeReturn() throws IOException {
+        String template = """
+            @LCL
+            D=M
+            @R13
+            M=D
+            @5
+            A=D-A
+            D=M
+            @R14
+            M=D
+            @SP
+            AM=M-1
+            D=M
+            @ARG
+            A=M
+            M=D
+            @ARG
+            D=M
+            @SP
+            M=D+1
+            @R13
+            AM=M-1
+            D=M
+            @THAT
+            M=D
+            @R13
+            AM=M-1
+            D=M
+            @THIS
+            M=D
+            @R13
+            AM=M-1
+            D=M
+            @ARG
+            M=D
+            @R13
+            AM=M-1
+            D=M
+            @LCL
+            M=D
+            @R14
+            A=M
+            0;JMP
+            """;
+        writer.write(template);
     }
 }
